@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title><%= title %> | Admin | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="/admin/dashboard" class="logo">
+                        <i class="fas fa-coins"></i>
+                        <span>RiverStoneWyoming<span class="premium">Business</span></span>
+                        <span class="admin-badge">Admin</span>
+                    </a>
+                </div>
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <i class="fas fa-user-shield"></i>
+                                <%= user.fullName %>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <ul class="sidebar-nav">
+                        <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li>
+                            <a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a>   <!-- ADD THIS -->
+                        </li>
+                        <li class="active"><a href="/admin/plans"><i class="fas fa-box"></i> Plans Management</a></li>
+                        <li><a href="/admin/applications"><i class="fas fa-file-alt"></i> LLC Applications</a></li>
+                        <li>
+                            <a href="/admin/withdrawals">
+                                <i class="fas fa-money-bill-wave"></i> 
+                                Withdrawals
+                            </a>
+                        </li>
+                        <li><a href="/admin/wallet-pool"><i class="fas fa-wallet"></i> Wallet Pool</a></li>
+                        <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                    </ul>
+                </div>
+
+                <!-- Main Content -->
+                <div class="content-area">
+                    <div class="dashboard-header">
+                        <h1><%= title %></h1>
+                        <p><a href="/admin/plans"><i class="fas fa-arrow-left"></i> Back to Plans</a></p>
+                    </div>
+
+                    <% if (locals.error) { %>
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-circle"></i> <%= error %>
+                        </div>
+                    <% } %>
+
+                    <form action="<%= formAction %>" method="POST" class="plan-form">
+                        <div class="form-group">
+                            <label for="name">Plan Name *</label>
+                            <input type="text" name="name" id="name" class="form-control" 
+                            value="<%= plan ? plan.name : '' %>" 
+                            placeholder="e.g., Basic, Pro, Enterprise, VIP" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price">Price (USD) *</label>
+                            <input type="number" name="price" id="price" class="form-control" 
+                                   value="<%= plan ? plan.price : '49' %>" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="processingTime">Processing Time *</label>
+                            <input type="text" name="processingTime" id="processingTime" class="form-control" 
+                                   value="<%= plan ? plan.processingTime : 'Standard 7-10 day processing' %>" required>
+                            <small class="form-text">Example: "Fastest 1-day processing" or "Standard 7-10 day processing"</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea name="description" id="description" class="form-control" rows="3"><%= plan ? plan.description : '' %></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="features">Features * (One per line)</label>
+                            <textarea name="features" id="features" class="form-control" rows="8" required><%= plan ? plan.features.join('\n') : '100% accuracy guarantee\nName availability check\nArticles of Organization' %></textarea>
+                            <small class="form-text">Enter each feature on a new line</small>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="recommended" <%= plan && plan.recommended ? 'checked' : '' %>>
+                                    Mark as Recommended (Featured Plan)
+                                </label>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="isActive" <%= plan && plan.isActive !== false ? 'checked' : '' %>>
+                                    Active (Visible to customers)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> <%= submitText %>
+                            </button>
+                            <a href="/admin/plans" class="btn btn-outline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

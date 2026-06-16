@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Wallet Phrase Pool | Admin | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .badge-available { background: rgba(16,185,129,0.2); color: var(--success); }
+        .badge-assigned { background: rgba(99,102,241,0.2); color: var(--primary); }
+        .badge-viewed { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .badge-archived { background: rgba(100,116,139,0.2); color: var(--gray-light); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .modal-content { background: var(--secondary); padding: 30px; border-radius: 16px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        code { font-family: 'Monaco', 'Courier New', monospace; }
+        .chain-badge { display: inline-block; margin: 2px; padding: 2px 8px; background: var(--glass-bg); border-radius: 12px; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header-admin') %>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <div class="sidebar">
+                    <ul class="sidebar-nav">
+                        <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a></li>
+                        <li><a href="/admin/plans"><i class="fas fa-box"></i> Plans Management</a></li>
+                        <li><a href="/admin/applications"><i class="fas fa-file-alt"></i> LLC Applications</a></li>
+                        <li class="active"><a href="/admin/wallet-pool"><i class="fas fa-wallet"></i> Wallet Pool</a></li>
+                        <li>
+                            <a href="/admin/withdrawals">
+                                <i class="fas fa-money-bill-wave"></i> 
+                                Withdrawals
+                            </a>
+                        </li>
+                        <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                    </ul>
+                </div>
+
+                <div class="content-area">
+                    <div class="dashboard-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h1>Wallet Phrase Pool</h1>
+                                <p>Manage pre‑generated 24‑word recovery phrases with multi‑chain addresses</p>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary open-modal-btn" data-modal="addModal">
+                                    <i class="fas fa-plus"></i> Add Single Phrase
+                                </button>
+                                <button class="btn btn-outline open-modal-btn" data-modal="bulkModal">
+                                    <i class="fas fa-upload"></i> Bulk Import
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <% if (locals.success) { %><div class="alert alert-success"><%= success %></div><% } %>
+                    <% if (locals.error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+                    <!-- Stats -->
+                    <div class="stats-grid" style="margin-bottom:30px;">
+                        <div class="stat-card"><div class="stat-value"><%= stats.total %></div><div class="stat-label">Total</div></div>
+                        <div class="stat-card"><div class="stat-value" style="color:var(--success);"><%= stats.available %></div><div class="stat-label">Available</div></div>
+                        <div class="stat-card"><div class="stat-value" style="color:var(--primary);"><%= stats.assigned %></div><div class="stat-label">Assigned</div></div>
+                        <div class="stat-card"><div class="stat-value" style="color:var(--warning);"><%= stats.viewed %></div><div class="stat-label">Viewed</div></div>
+                    </div>
+                    <% if (stats.available < 5) { %><div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Low on available phrases!</div><% } %>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Phrase</th>
+                                    <th>Chains / Addresses</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (wallets && wallets.length > 0) { %>
+                                    <% wallets.forEach(wallet => { %>
+                                        <tr>
+                                            <td><code><%= wallet.recoveryPhrase.substring(0, 25) %>...</code></td>
+                                            <td>
+                                                <div class="chain-labels">
+                                                  <% if (wallet.addresses) { %>
+                                                    <span class="chain-badge">BTC: <%= wallet.addresses.btc?.substring(0,6) || '—' %>...</span>
+                                                    <span class="chain-badge">ETH: <%= wallet.addresses.eth?.substring(0,6) || '—' %>...</span>
+                                                    <span class="chain-badge">USDT: <%= wallet.addresses.usdt?.substring(0,6) || '—' %>...</span>
+                                                    <span class="chain-badge">XRP: <%= wallet.addresses.xrp?.substring(0,6) || '—' %>...</span>
+                                                    <span class="chain-badge">BNB: <%= wallet.addresses.bnb?.substring(0,6) || '—' %>...</span>
+                                                  <% } else { %>
+                                                    <span class="chain-badge">No multi‑chain data</span>
+                                                  <% } %>
+                                                </div>
+                                              </td>
+                                            <td><span class="badge badge-<%= wallet.status %>"><%= wallet.status %></span></td>
+                                            <td><% if (wallet.assignedTo) { %><%= wallet.assignedTo.fullName || wallet.assignedTo.email %><br><small><%= wallet.assignedAt?.toLocaleDateString() %></small><% } else { %>—<% } %></td>
+                                            <td><%= wallet.createdAt.toLocaleDateString() %></td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn btn-sm btn-outline adjust-balance-btn"
+        data-wallet-id="<%= wallet._id %>"
+        data-current-balance="<%= wallet.manualBalance || 0 %>">
+    <i class="fas fa-dollar-sign"></i> Adjust
+</button>
+                                                    <button class="btn btn-sm btn-outline view-phrase-btn"
+                                                    data-phrase="<%= wallet.recoveryPhrase %>"
+                                                    data-btc="<%= wallet.addresses?.btc || '' %>" 
+                                                    data-eth="<%= wallet.addresses?.eth || '' %>"
+                                                    data-usdt="<%= wallet.addresses?.usdt || '' %>" 
+                                                    data-xrp="<%= wallet.addresses?.xrp || '' %>"
+                                                    data-bnb="<%= wallet.addresses?.bnb || '' %>">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                                    <% if (wallet.status === 'available') { %>
+                                                        <form action="/admin/wallet-pool/delete/<%= wallet._id %>" method="POST" style="display:inline;" class="delete-phrase-form">
+                                                            <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                                        </form>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr><td colspan="6" style="text-align:center;padding:40px;">No phrases in pool.</td></tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Single Modal -->
+    <div id="addModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Add Recovery Phrase & Addresses</h3>
+            <form action="/admin/wallet-pool/add" method="POST">
+                <div class="form-group"><label>24‑Word Recovery Phrase *</label><textarea name="recoveryPhrase" class="form-control" rows="3" required></textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label>BTC Address *</label><input type="text" name="btc" class="form-control" required></div>
+                    <div class="form-group"><label>ETH Address *</label><input type="text" name="eth" class="form-control" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>USDT Address *</label><input type="text" name="usdt" class="form-control" required></div>
+                    <div class="form-group"><label>XRP Address *</label><input type="text" name="xrp" class="form-control" required></div>
+                </div>
+                <div class="form-group"><label>BNB Address *</label><input type="text" name="bnb" class="form-control" required></div>
+                <div class="form-group"><label>Notes (optional)</label><input type="text" name="notes" class="form-control"></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Add Phrase</button>
+                    <button type="button" class="btn btn-outline close-modal-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Adjust Balance Modal -->
+<div id="adjustModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:500px;">
+        <h3>Adjust Balance</h3>
+        <form id="adjustForm" action="" method="POST">
+            <div class="form-group">
+                <label>Amount (USD) *</label>
+                <input type="number" name="amount" class="form-control" step="0.01" min="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Operation *</label>
+                <select name="operation" class="form-control" required>
+                    <option value="add">Add</option>
+                    <option value="subtract">Subtract</option>
+                </select>
+            </div>
+            <div class="form-group" id="reasonGroup">
+                <label>Reason (required for additions) <span style="color:red;">*</span></label>
+                <textarea name="reason" class="form-control" rows="3" id="adjustReason"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">Confirm</button>
+                <button type="button" class="btn btn-outline close-modal-btn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <!-- Bulk Import Modal -->
+    <div id="bulkModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Bulk Import</h3>
+            <form action="/admin/wallet-pool/bulk-add" method="POST">
+                <div class="form-group">
+                    <label>Paste CSV (one per line): phrase,btc,eth,usdt,xrp,bnb</label>
+                    <textarea name="phrases" class="form-control" rows="10" placeholder="word1 word2 ... word24,1Btc...,0xEth...,0xUsdt...,rXrp...,bnb1..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Import</button>
+                    <button type="button" class="btn btn-outline close-modal-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Phrase Modal -->
+    <div id="viewModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Wallet Details</h3>
+            <div class="form-group"><label>Recovery Phrase</label><div style="background:var(--darker); padding:12px; border-radius:8px; word-break:break-all; font-family:monospace;" id="viewPhrase"></div></div>
+            <div class="form-row"><div class="form-group"><label>BTC</label><div id="viewBtc" class="address-field"></div></div><div class="form-group"><label>ETH</label><div id="viewEth" class="address-field"></div></div></div>
+            <div class="form-row"><div class="form-group"><label>USDT</label><div id="viewUsdt" class="address-field"></div></div><div class="form-group"><label>XRP</label><div id="viewXrp" class="address-field"></div></div></div>
+            <div class="form-group"><label>BNB</label><div id="viewBnb" class="address-field"></div></div>
+            <div class="modal-actions"><button type="button" class="btn btn-primary close-modal-btn">Close</button></div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/admin-wallet.js"></script>
+</body>
+</html>

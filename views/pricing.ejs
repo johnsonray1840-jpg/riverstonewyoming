@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/meta') %>
+    <title>Pricing Plans | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+
+<section class="page-header">
+    <div class="container">
+        <h1>Simple, Transparent <span class="gradient-text">Pricing</span></h1>
+        <p>Choose the plan that fits your business needs</p>
+    </div>
+</section>
+
+<section class="pricing-section">
+    <div class="container">
+        <div class="pricing-grid">
+            <% if (locals.plans && plans.length > 0) { %>
+                <% plans.forEach(plan => { %>
+                    <div class="pricing-card <%= plan.recommended ? 'featured' : '' %>">
+                        <% if (plan.recommended) { %><div class="pricing-badge">Most Popular</div><% } %>
+                        <div class="pricing-header">
+                            <h3 class="pricing-name"><%= plan.name %></h3>
+                            <div class="pricing-price">$<%= plan.price %><span>+ state fees</span></div>
+                            <p class="pricing-processing"><%= plan.processingTime %></p>
+                        </div>
+                        <ul class="pricing-features">
+                            <% plan.features.forEach(feature => { %>
+                                <li><i class="fas fa-check"></i> <%= feature %></li>
+                            <% }) %>
+                        </ul>
+                        <a href="/apply?plan=<%= plan._id %>" class="btn btn-primary btn-block">Get Started</a>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">Starter</h3>
+                        <div class="pricing-price">$49<span>+ state fees</span></div>
+                        <p class="pricing-processing">Standard 7-10 day processing</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> 100% accuracy guarantee</li>
+                        <li><i class="fas fa-check"></i> Name availability check</li>
+                        <li><i class="fas fa-check"></i> Articles of Organization</li>
+                    </ul>
+                    <a href="/apply?plan=starter" class="btn btn-primary btn-block">Get Started</a>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Most Popular</div>
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">Pro</h3>
+                        <div class="pricing-price">$149<span>+ state fees</span></div>
+                        <p class="pricing-processing">Fastest 1-day processing</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Fastest 1-day processing</li>
+                        <li><i class="fas fa-check"></i> 100% accuracy guarantee</li>
+                        <li><i class="fas fa-check"></i> Ongoing filing compliance</li>
+                        <li><i class="fas fa-check"></i> Employer ID Number (EIN)</li>
+                        <li><i class="fas fa-check"></i> Operating agreement template</li>
+                        <li><i class="fas fa-check"></i> Business logo builder</li>
+                    </ul>
+                    <a href="/apply?plan=pro" class="btn btn-primary btn-block">Get Started</a>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-name">Premium</h3>
+                        <div class="pricing-price">$299<span>+ state fees</span></div>
+                        <p class="pricing-processing">Priority 1-day processing</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Everything in Pro</li>
+                        <li><i class="fas fa-check"></i> Dedicated account manager</li>
+                        <li><i class="fas fa-check"></i> Crypto wallet integration</li>
+                        <li><i class="fas fa-check"></i> Annual report filing</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
+                    </ul>
+                    <a href="/apply?plan=premium" class="btn btn-primary btn-block">Get Started</a>
+                </div>
+            <% } %>
+        </div>
+        <div class="pricing-footer">
+            <p><i class="fas fa-shield-alt"></i> All plans include our 100% accuracy guarantee and secure document storage.</p>
+            <p>Need help choosing? <a href="#">Contact our team</a></p>
+        </div>
+    </div>
+</section>
+
+    <%- include('partials/footer') %>
+    <script src="/js/main.js"></script>
+</body>
+</html>
+EOF

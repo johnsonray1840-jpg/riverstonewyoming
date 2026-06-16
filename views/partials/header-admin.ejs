@@ -1,0 +1,33 @@
+<header class="header">
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/admin/dashboard" class="logo">
+                    <i class="fas fa-coins"></i>
+                    <span>River Stone<span class="premium">Wyoming</span></span>
+                    <span class="admin-badge">Admin</span>
+                </a>
+            </div>
+            <div class="nav-menu">
+                <ul class="nav-links">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle">
+                            <i class="fas fa-user-shield"></i>
+                            <%= user.fullName %>
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><a href="/admin/plans"><i class="fas fa-box"></i> Plans</a></li>
+                            <li><a href="/admin/applications"><i class="fas fa-file-alt"></i> LLC Apps</a></li>
+                            <li><a href="/admin/wallet-pool"><i class="fas fa-wallet"></i> Wallet Pool</a></li>
+                            <li><a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

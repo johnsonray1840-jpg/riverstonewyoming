@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Admin Dashboard | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="/admin/dashboard" class="logo">
+                        <i class="fas fa-coins"></i>
+                        <span>RiverStoneWyoming<span class="premium">Business</span></span>
+                        <span class="admin-badge">Admin</span>
+                    </a>
+                </div>
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <i class="fas fa-user-shield"></i>
+                                <%= user.fullName %>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <ul class="sidebar-nav">
+                        <li class="active">
+                            <a href="/admin/dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/plans">
+                                <i class="fas fa-box"></i>
+                                Plans Management
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a>   
+                        </li>
+                        <li>
+                            <a href="/admin/applications">
+                                <i class="fas fa-file-alt"></i>
+                                LLC Applications
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/withdrawals">
+                                <i class="fas fa-money-bill-wave"></i> 
+                                Withdrawals
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/wallet-pool">
+                                <i class="fas fa-wallet"></i>
+                                Wallet Pool
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/users">
+                                <i class="fas fa-users"></i>
+                                Users
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Main Content -->
+                <div class="content-area">
+                    <div class="dashboard-header">
+                        <h1>Admin Dashboard</h1>
+                        <p>Overview of your River Stone Wyoming platform</p>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value"><%= stats.totalUsers %></div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="stat-value"><%= stats.totalApplications %></div>
+                            <div class="stat-label">Total Applications</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value"><%= stats.pendingApplications %></div>
+                            <div class="stat-label">Pending Review</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-value"><%= stats.approvedApplications %></div>
+                            <div class="stat-label">Approved LLCs</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-value"><%= stats.availableWallets %></div>
+                            <div class="stat-label">Available Wallets</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-value"><%= stats.assignedWallets %></div>
+                            <div class="stat-label">Assigned Wallets</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="action-buttons">
+                            <a href="/admin/plans/create" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create New Plan
+                            </a>
+                            <a href="/admin/applications?status=pending" class="btn btn-outline">
+                                <i class="fas fa-clock"></i> Review Pending Applications
+                            </a>
+                            <a href="/admin/wallet-pool" class="btn btn-outline">
+                                <i class="fas fa-plus-circle"></i> Add Wallet Phrases
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Recent Applications -->
+                    <div class="recent-section">
+                        <h3>Recent Applications</h3>
+                        <% if (recentApplications && recentApplications.length > 0) { %>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>LLC Name</th>
+                                        <th>Plan</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% recentApplications.forEach(app => { %>
+                                        <tr>
+                                            <td>
+                                                <%= app.userId?.fullName || 'N/A' %><br>
+                                                <small><%= app.userId?.email || '' %></small>
+                                            </td>
+                                            <td><%= app.desiredLLCName %></td>
+                                            <td><%= app.planId?.name || 'N/A' %></td>
+                                            <td>
+                                                <span class="badge badge-<%= app.status %>">
+                                                    <%= app.status %>
+                                                </span>
+                                            </td>
+                                            <td><%= app.createdAt.toLocaleDateString() %></td>
+                                            <td>
+                                                <a href="/admin/applications/<%= app._id %>" class="btn btn-sm btn-outline">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                            <div class="view-all">
+                                <a href="/admin/applications">View All Applications <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        <% } else { %>
+                            <p class="no-data">No recent applications</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

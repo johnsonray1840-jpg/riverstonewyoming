@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <%- include('../partials/meta') %>
+    <title>KYC Verification | Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .kyc-filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .kyc-filter-chip {
+            padding: 10px 20px;
+            border-radius: 100px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--gray-light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .kyc-filter-chip:hover {
+            border-color: var(--primary);
+            color: white;
+            background: rgba(99,102,241,0.1);
+        }
+        .kyc-filter-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+        .kyc-filter-chip i {
+            font-size: 0.9rem;
+        }
+        .badge-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .badge-approved { background: rgba(16,185,129,0.2); color: var(--success); }
+        .badge-rejected { background: rgba(239,68,68,0.2); color: var(--danger); }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header-admin') %>
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <div class="sidebar">
+                    <ul class="sidebar-nav">
+                        <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li>
+                            <a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a>   <!-- ADD THIS -->
+                        </li>
+                        <li><a href="/admin/plans"><i class="fas fa-box"></i> Plans</a></li>
+                        <li><a href="/admin/applications"><i class="fas fa-file-alt"></i> LLC Apps</a></li>
+                        <li>
+                            <a href="/admin/withdrawals">
+                                <i class="fas fa-money-bill-wave"></i> 
+                                Withdrawals
+                            </a>
+                        </li>
+                        <li><a href="/admin/wallet-pool"><i class="fas fa-wallet"></i> Wallet Pool</a></li>
+                        <li class="active"><a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC</a></li>
+                    </ul>
+                </div>
+                <div class="content-area">
+                    <h1>KYC Verification Requests</h1>
+                    <% if (locals.success) { %><div class="alert alert-success"><%= success %></div><% } %>
+                    <div class="kyc-filter-bar">
+                        <a href="/admin/kyc?status=pending" class="kyc-filter-chip <%= filter==='pending' ? 'active' : '' %>">
+                            <i class="fas fa-clock"></i> Pending
+                        </a>
+                        <a href="/admin/kyc?status=approved" class="kyc-filter-chip <%= filter==='approved' ? 'active' : '' %>">
+                            <i class="fas fa-check-circle"></i> Approved
+                        </a>
+                        <a href="/admin/kyc?status=rejected" class="kyc-filter-chip <%= filter==='rejected' ? 'active' : '' %>">
+                            <i class="fas fa-times-circle"></i> Rejected
+                        </a>
+                        <a href="/admin/kyc?status=all" class="kyc-filter-chip <%= filter==='all' ? 'active' : '' %>">
+                            <i class="fas fa-list"></i> All
+                        </a>
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>User</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <% if (users.length) { %>
+                                <% users.forEach(u => { %>
+                                    <tr>
+                                        <td><%= u.fullName %><br><small><%= u.email %></small></td>
+                                        <td><%= u.kycSubmittedAt ? u.kycSubmittedAt.toLocaleDateString() : '—' %></td>
+                                        <td><span class="badge badge-<%= u.kycStatus %>"><%= u.kycStatus %></span></td>
+                                        <td><a href="/admin/kyc/<%= u._id %>" class="btn btn-sm btn-outline">Review</a></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="4">No KYC requests found.</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html>

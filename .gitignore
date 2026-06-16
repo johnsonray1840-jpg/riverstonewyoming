@@ -1,0 +1,7 @@
+cd /Users/mac/Desktop/riverstonewyoming.org
+cat > .gitignore << 'EOF'
+node_modules/
+.env
+uploads/
+.DS_Store
+EOF

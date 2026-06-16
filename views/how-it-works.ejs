@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/meta') %>
+    <title>How It Works | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .how-container {
+            max-width: 1100px;
+            margin: 60px auto;
+            padding: 0 24px;
+        }
+        .how-hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .how-hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+        }
+        .how-hero p {
+            color: var(--gray-light);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 20px auto;
+            line-height: 1.6;
+        }
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+        .step-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px;
+            display: flex;
+            flex-direction: row;
+            gap: 28px;
+            align-items: flex-start;
+            transition: all 0.3s;
+        }
+        .step-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(99,102,241,0.15);
+        }
+        .step-number {
+            flex-shrink: 0;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+        .step-content {
+            flex: 1;
+            min-width: 0; /* allow text to wrap */
+        }
+        .step-content h3 {
+            margin: 0 0 12px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .step-content p {
+            color: var(--gray-light);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .step-icon {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .step-card {
+                flex-direction: column;
+                text-align: left;
+                padding: 28px;
+                gap: 20px;
+            }
+            .step-number {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                margin: 0 auto 0 0;
+            }
+            .step-content h3 {
+                font-size: 1.3rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .how-container {
+                margin: 40px auto;
+            }
+            .how-hero h1 {
+                font-size: 2rem;
+            }
+            .how-hero p {
+                font-size: 1rem;
+            }
+            .step-card {
+                padding: 24px;
+                gap: 16px;
+            }
+            .step-number {
+                width: 56px;
+                height: 56px;
+                font-size: 1.4rem;
+                border-radius: 16px;
+                margin: 0 auto 0 0;
+            }
+            .step-content h3 {
+                font-size: 1.2rem;
+            }
+            .step-content p {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <div class="how-container">
+        <div class="how-hero">
+            <h1>How It Works</h1>
+            <p>Build your crypto‑ready LLC from start to finish — combining traditional business setup with digital asset management and long‑term investment structure.</p>
+        </div>
+
+        <div class="step-list">
+            <!-- Step 1 -->
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3><i class="fas fa-tag step-icon"></i> Choose Your Entity Name</h3>
+                    <p>Select a unique legal name for your LLC that complies with state requirements and reflects your digital or crypto‑focused identity. This becomes the official name of your structured financial entity.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3><i class="fas fa-user-tie step-icon"></i> Appoint a Registered Agent</h3>
+                    <p>A registered agent is assigned to handle official legal documents on behalf of your LLC. This ensures compliance and privacy while keeping your operations protected and properly structured.</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3><i class="fas fa-file-contract step-icon"></i> Create Your Operating Agreement</h3>
+                    <p>This is the internal rulebook of your LLC. It defines ownership, roles, decision‑making structure, profit allocation, and how the entity operates. For crypto‑focused LLCs, it also includes rules for digital asset handling, custody, and investment governance.</p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3><i class="fas fa-id-card step-icon"></i> Obtain Your EIN (Federal Business ID)</h3>
+                    <p>Your EIN is issued by the IRS and becomes your LLC’s official financial identity. It is required to open accounts, manage taxes, and activate full business operations. Without an EIN, your LLC cannot properly integrate with banking systems or establish a structured crypto treasury setup.</p>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step-card">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3><i class="fas fa-shield-haltered step-icon"></i> Set Up Your Crypto Cold Storage Wallet</h3>
+                    <p>Once your EIN is active, your LLC is eligible to create a secure cold storage wallet system. This is your digital asset vault, built for long‑term security and self‑custody. A 24‑word recovery seed phrase is generated at setup and is only accessible to you. It must never be shared with anyone under any circumstances, as it is the sole key to your assets.</p>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="step-card">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h3><i class="fas fa-coins step-icon"></i> Fund Your LLC Crypto Treasury</h3>
+                    <p>After setup, you can fund your LLC’s crypto treasury according to your chosen plan and investment structure. Capital is allocated into your cold storage system and organized under your LLC framework. Customer support is available to guide proper allocation and reduce errors.</p>
+                </div>
+            </div>
+
+            <!-- Step 7 -->
+            <div class="step-card">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <h3><i class="fas fa-chart-line step-icon"></i> Define Your Investment Strategy</h3>
+                    <p>Your LLC now transitions into a managed financial structure. You define how capital is allocated long‑term—whether through crypto holdings, staking, yield strategies, or diversified digital asset exposure. This includes risk levels, profit handling, and portfolio structure to ensure disciplined and sustainable growth.</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:60px;">
+            <p style="color: var(--gray-light); font-size:1.1rem;">🔐 <strong>Final Outcome:</strong> A fully structured crypto‑ready LLC with legal formation, secure custody, and a long‑term investment framework.</p>
+            <a href="/apply" class="btn btn-primary btn-lg" style="margin-top:20px;">Apply for LLC Now</a>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+    <script src="/js/main.js"></script>
+</body>
+</html>

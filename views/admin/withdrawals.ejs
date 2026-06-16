@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head><%- include('../partials/meta') %><title>Withdrawals</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+    <%- include('../partials/header-admin') %>
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <div class="sidebar">
+                    <ul class="sidebar-nav">
+                        <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a></li>
+                        <li><a href="/admin/plans"><i class="fas fa-box"></i> Plans Management</a></li>
+                        <li><a href="/admin/applications"><i class="fas fa-file-alt"></i> LLC Applications</a></li>
+                        <li class="active">
+                            <a href="/admin/withdrawals">
+                                <i class="fas fa-money-bill-wave"></i>  
+                                Withdrawals
+                            </a>
+                        </li>
+                        <li><a href="/admin/wallet-pool"><i class="fas fa-wallet"></i> Wallet Pool</a></li>
+                        <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                    </ul>
+                </div>
+                <div class="content-area">
+                    <h1>Withdrawal Requests</h1>
+                    <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+                    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+                    <div class="filter-tabs">
+                        <a href="/admin/withdrawals?status=pending" class="<%= filter==='pending'?'active':'' %>">Pending</a>
+                        <a href="/admin/withdrawals?status=approved" class="<%= filter==='approved'?'active':'' %>">Approved</a>
+                        <a href="/admin/withdrawals?status=rejected" class="<%= filter==='rejected'?'active':'' %>">Rejected</a>
+                        <a href="/admin/withdrawals?status=all" class="<%= filter==='all'?'active':'' %>">All</a>
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>User</th><th>Chain</th><th>Amount</th><th>To</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <% withdrawals.forEach(w => { %>
+                                <tr>
+                                    <td><%= w.userId?.fullName %><br><small><%= w.userId?.email %></small></td>
+                                    <td><%= w.chain.toUpperCase() %></td>
+                                    <td>$<%= w.amount %></td>
+                                    <td><code><%= w.toAddress.substring(0,10) %>...</code></td>
+                                    <td><span class="badge badge-<%= w.status %>"><%= w.status %></span></td>
+                                    <td>
+                                        <% if (w.status === 'pending') { %>
+                                            <form action="/admin/withdrawals/<%= w._id %>/approve" method="POST" style="display:inline;">
+                                                <button class="btn btn-sm btn-success approve-app">Approve</button>
+                                            </form>
+                                            <button class="btn btn-sm btn-danger show-reject-modal"
+                                                    data-id="<%= w._id %>"
+                                                    data-chain="<%= w.chain %>"
+                                                    data-amount="<%= w.amount %>">Reject</button>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="modal" style="display:none;">
+        <form action="" id="rejectForm" method="POST">
+            <textarea name="reason" placeholder="Rejection reason" required></textarea>
+            <button class="btn btn-danger">Confirm</button>
+            <button type="button" class="close-modal-btn">Cancel</button>
+        </form>
+    </div>
+    <script src="/js/admin-withdrawals.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Manage Plans | Admin | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="/admin/dashboard" class="logo">
+                        <i class="fas fa-coins"></i>
+                        <span>RiverStoneWyoming<span class="premium">Business</span></span>
+                        <span class="admin-badge">Admin</span>
+                    </a>
+                </div>
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <i class="fas fa-user-shield"></i>
+                                <%= user.fullName %>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <ul class="sidebar-nav">
+                        <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li>
+                            <a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a>   <!-- ADD THIS -->
+                        </li>
+                        <li class="active"><a href="/admin/plans"><i class="fas fa-box"></i> Plans Management</a></li>
+                        <li><a href="/admin/applications"><i class="fas fa-file-alt"></i> LLC Applications</a></li>
+                        <li><a href="/admin/wallet-pool"><i class="fas fa-wallet"></i> Wallet Pool</a></li>
+                        <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                    </ul>
+                </div>
+
+                <!-- Main Content -->
+                <div class="content-area">
+                    <div class="dashboard-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h1>Plans Management</h1>
+                                <p>Create, edit, and manage subscription plans</p>
+                            </div>
+                            <a href="/admin/plans/create" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create New Plan
+                            </a>
+                        </div>
+                    </div>
+
+                    <% if (locals.success) { %>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <%= success %>
+                        </div>
+                    <% } %>
+
+                    <% if (locals.error) { %>
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-circle"></i> <%= error %>
+                        </div>
+                    <% } %>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Plan Name</th>
+                                    <th>Price</th>
+                                    <th>Processing Time</th>
+                                    <th>Features</th>
+                                    <th>Status</th>
+                                    <th>Recommended</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (plans && plans.length > 0) { %>
+                                    <% plans.forEach(plan => { %>
+                                        <tr>
+                                            <td><strong><%= plan.name %></strong></td>
+                                            <td>$<%= plan.price %></td>
+                                            <td><%= plan.processingTime %></td>
+                                            <td>
+                                                <small><%= plan.features.length %> features</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-<%= plan.isActive ? 'approved' : 'rejected' %>">
+                                                    <%= plan.isActive ? 'Active' : 'Inactive' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <% if (plan.recommended) { %>
+                                                    <span class="badge badge-pending">
+                                                        <i class="fas fa-star"></i> Recommended
+                                                    </span>
+                                                <% } else { %>
+                                                    <span class="badge">—</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="/admin/plans/edit/<%= plan._id %>" class="btn btn-sm btn-outline">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <form action="/admin/plans/toggle/<%= plan._id %>" method="POST" style="display: inline;">
+                                                        <button type="submit" class="btn btn-sm btn-outline">
+                                                            <i class="fas fa-power-off"></i>
+                                                            <%= plan.isActive ? 'Disable' : 'Enable' %>
+                                                        </button>
+                                                    </form>
+                                                    <form action="/admin/plans/delete/<%= plan._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Delete this plan? This cannot be undone.');">
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 40px;">
+                                            <p>No plans found. <a href="/admin/plans/create">Create your first plan</a></p>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

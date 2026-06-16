@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Set Wallet PIN | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <div class="form-container" style="max-width:400px;">
+        <h3>Create 6‑Digit Wallet PIN</h3>
+        <% if (locals.error) { %><div class="alert alert-error"><%= error %></div><% } %>
+        <p>This PIN will be required each time you access your wallet dashboard.</p>
+        <form action="/user/wallet/set-pin" method="POST">
+            <input type="hidden" name="walletId" value="<%= walletId %>">
+            <div class="form-group">
+                <input type="password" name="pin" id="pin" class="form-control" placeholder="000000" maxlength="6" pattern="\d{6}" required autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Set PIN</button>
+        </form>
+    </div>
+    <%- include('../partials/footer') %>
+</body>
+</html>

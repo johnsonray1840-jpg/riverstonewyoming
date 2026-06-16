@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Verify Email | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <div class="form-container">
+        <h2>Verify Your Email</h2>
+        <% if (locals.error) { %><div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div><% } %>
+        <% if (locals.message) { %><div class="alert alert-success"><i class="fas fa-check-circle"></i> <%= message %></div><% } %>
+        <p>We sent a 6-digit code to <strong><%= user.email %></strong>. Enter it below.</p>
+        <form action="/auth/verify-email" method="POST">
+            <div class="form-group">
+                <input type="text" name="code" class="form-control" placeholder="000000" maxlength="6" required autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-check"></i> Verify</button>
+        </form>
+        <form action="/auth/resend-verification" method="POST" style="margin-top:10px;">
+            <button type="submit" class="btn btn-outline btn-block"><i class="fas fa-redo-alt"></i> Resend Code</button>
+        </form>
+    </div>
+    <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<header class="header">
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" class="logo">
+                    <i class="fas fa-coins"></i>
+                    <span>River Stone<span class="premium">Wyoming</span></span>
+                </a>
+            </div>
+            
+            <button class="mobile-toggle" id="mobileToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <div class="nav-menu" id="navMenu">
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/how-it-works">How It Works</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
+                    <% if (locals.isAuthenticated) { %>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <%= locals.user.fullName.split(' ')[0] %>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <% if (locals.isAdmin) { %>
+                                    <li><a href="/admin/dashboard">Admin Dashboard</a></li>
+                                <% } else { %>
+                                    <li><a href="/user/dashboard">My Dashboard</a></li>
+                                    <li><a href="/user/llcs">My LLCs</a></li>
+                                    <li><a href="/user/wallet">My Wallet</a></li>
+                                    <li><a href="/user/settings">Settings</a></li>
+                                <% } %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a href="/auth/logout">Logout</a></li>
+                            </ul>
+                        </li>
+                    <% } else { %>
+                        <li><a href="/auth/login" class="nav-link">Login</a></li>
+                        <li><a href="/auth/signup" class="btn btn-primary btn-sm">Sign Up</a></li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

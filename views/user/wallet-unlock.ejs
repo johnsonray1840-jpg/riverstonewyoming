@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Unlock Wallet | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <div class="form-container" style="max-width:400px;">
+        <h3>Enter Wallet PIN</h3>
+        <% if (locals.error) { %><div class="alert alert-error"><%= error %></div><% } %>
+        <form action="/user/wallet/unlock" method="POST">
+            <div class="form-group">
+                <input type="password" name="pin" class="form-control" placeholder="000000" maxlength="6" required autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Unlock</button>
+        </form>
+    </div>
+    <%- include('../partials/footer') %>
+</body>
+</html>

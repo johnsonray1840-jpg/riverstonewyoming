@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/meta') %>
+    <title>Form Your Crypto LLC | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --step-active: #6366f1;
+            --step-completed: #10b981;
+            --step-pending: #334155;
+        }
+        .apply-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .progress-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .progress-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .progress-header p {
+            color: var(--gray-light);
+            font-size: 1rem;
+            max-width: 600px;
+            margin: 10px auto 0;
+        }
+
+        /* Step Indicator - Scrollable on mobile */
+        .steps-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+        .steps-indicator {
+            display: flex;
+            justify-content: space-between;
+            min-width: 700px;
+            position: relative;
+        }
+        .steps-indicator::before {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--glass-border);
+            z-index: 0;
+        }
+        .step-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            min-width: 70px;
+        }
+        .step-circle {
+            width: 44px;
+            height: 44px;
+            background: var(--step-pending);
+            border: 2px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            transition: all 0.3s;
+        }
+        .step-item.active .step-circle {
+            background: var(--step-active);
+            border-color: var(--step-active);
+            box-shadow: 0 0 20px rgba(99,102,241,0.4);
+        }
+        .step-item.completed .step-circle {
+            background: var(--step-completed);
+            border-color: var(--step-completed);
+        }
+        .step-label {
+            font-size: 0.75rem;
+            color: var(--gray-light);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        .step-item.active .step-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Form card */
+        .form-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: clamp(20px, 4vw, 40px);
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .form-card h2 {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            margin-bottom: 20px;
+        }
+        .form-card p {
+            color: var(--gray-light);
+            margin-bottom: 20px;
+        }
+        .step-pane {
+            display: none;
+        }
+        .step-pane.active {
+            display: block;
+        }
+
+        /* Info boxes */
+        .info-box {
+            background: rgba(6,182,212,0.05);
+            border-left: 4px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .info-box.warning {
+            background: rgba(245,158,11,0.05);
+            border-left-color: var(--warning);
+        }
+        .rule-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+        .rule-list li {
+            padding: 6px 0;
+            color: var(--gray-light);
+            font-size: 0.9rem;
+        }
+        .rule-list i.fa-check {
+            color: var(--success);
+            margin-right: 10px;
+        }
+
+        /* Plan cards */
+        .plan-card {
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+        }
+        .plan-card:hover {
+            border-color: var(--primary);
+        }
+        .plan-card.selected {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.05);
+        }
+        .plan-card input[type="radio"] {
+            accent-color: var(--primary);
+            transform: scale(1.2);
+            margin-right: 12px;
+        }
+        .plan-features-grid {
+            margin-top: 12px;
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4px;
+        }
+        .plan-features-grid li {
+            font-size: 0.85rem;
+            color: var(--gray-light);
+        }
+        .plan-features-grid li i {
+            color: var(--success);
+            font-size: 0.7rem;
+            margin-right: 6px;
+        }
+
+        /* Form rows */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--gray-light);
+            font-size: 0.9rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        select.form-control {
+            cursor: pointer;
+        }
+        .field-hint {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        /* Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* Signup wall */
+        .signup-wall-premium {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(145deg, rgba(99,102,241,0.05), rgba(6,182,212,0.05));
+            border: 2px dashed var(--primary);
+            border-radius: 20px;
+            margin-top: 20px;
+        }
+        .signup-wall-premium h3 {
+            margin: 15px 0 10px;
+        }
+
+        /* Summary box */
+        .summary-box {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .summary-box h4 {
+            margin-bottom: 12px;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+        }
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .apply-container {
+                margin: 20px auto;
+                padding: 0 12px;
+            }
+            .form-card {
+                padding: 20px 16px;
+                border-radius: 16px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .plan-card {
+                padding: 14px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+            .signup-wall-premium {
+                padding: 20px 15px;
+            }
+            .signup-wall-premium .btn {
+                width: 100%;
+                margin-top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <div class="apply-container">
+        <div class="progress-header">
+            <h1>🚀 Form a Business-Ready LLC</h1>
+            <p>River Stone Wyoming — Secure Digital Asset Management & Crypto Infrastructure</p>
+        </div>
+
+        <!-- 8-Step Indicator (scrollable on mobile) -->
+        <div class="steps-wrapper">
+            <div class="steps-indicator">
+                <div class="step-item active" data-step="1"><div class="step-circle">1</div><div class="step-label">Plan</div></div>
+                <div class="step-item" data-step="2"><div class="step-circle">2</div><div class="step-label">Name & State</div></div>
+                <div class="step-item" data-step="3"><div class="step-circle">3</div><div class="step-label">Address</div></div>
+                <div class="step-item" data-step="4"><div class="step-circle">4</div><div class="step-label">Agent</div></div>
+                <div class="step-item" data-step="5"><div class="step-circle">5</div><div class="step-label">Member</div></div>
+                <div class="step-item" data-step="6"><div class="step-circle">6</div><div class="step-label">Purpose</div></div>
+                <div class="step-item" data-step="7"><div class="step-circle">7</div><div class="step-label">EIN & Docs</div></div>
+                <div class="step-item" data-step="8"><div class="step-circle">8</div><div class="step-label">Submit</div></div>
+            </div>
+        </div>
+
+        <form id="llcForm" method="POST" action="/apply/submit" enctype="multipart/form-data">
+            <% const sd = typeof savedData !== 'undefined' ? savedData : {}; %>
+
+            <!-- ===== STEP 1: CHOOSE PLAN ===== -->
+            <div class="form-card step-pane active" data-step="1">
+                <h2><i class="fas fa-cubes" style="color: var(--primary);"></i> Select Your Formation Package</h2>
+                <p>All plans include 100% accuracy guarantee and secure document storage.</p>
+                <div class="plan-selection">
+                    <% if (locals.plans && plans.length) { %>
+                        <% plans.forEach(plan => { %>
+                            <label class="plan-card <%= sd.planId == plan._id ? 'selected' : '' %>">
+                                <input type="radio" name="planId" value="<%= plan._id %>" <%= sd.planId == plan._id ? 'checked' : '' %> required>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div><strong style="font-size:1.2rem;"><%= plan.name %></strong> - $<%= plan.price %></div>
+                                    <span class="badge" style="background: var(--primary);"><%= plan.processingTime %></span>
+                                </div>
+                                <ul class="plan-features-grid">
+                                    <% plan.features.slice(0,6).forEach(f => { %>
+                                        <li><i class="fas fa-check"></i> <%= f %></li>
+                                    <% }) %>
+                                </ul>
+                            </label>
+                        <% }) %>
+                    <% } %>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary next-step">Continue to Name & State <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 2: ENTITY NAME & STATE ===== -->
+            <div class="form-card step-pane" data-step="2">
+                <h2><i class="fas fa-building" style="color: var(--primary);"></i> Name Your Crypto LLC</h2>
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>State Filing Jurisdiction</strong> – Most founders choose Delaware or Wyoming for crypto-friendly laws. We'll file in your selected state.
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>State of Formation *</label>
+                        <select name="state" class="form-control" required>
+                            <option value="">Select State</option>
+                            <option value="DE" <%= sd.state == 'DE' ? 'selected' : '' %>>Delaware (Recommended)</option>
+                            <option value="WY" <%= sd.state == 'WY' ? 'selected' : '' %>>Wyoming (Crypto-Friendly)</option>
+                            <option value="NV" <%= sd.state == 'NV' ? 'selected' : '' %>>Nevada</option>
+                            <option value="FL" <%= sd.state == 'FL' ? 'selected' : '' %>>Florida</option>
+                            <option value="TX" <%= sd.state == 'TX' ? 'selected' : '' %>>Texas</option>
+                        </select>
+                    </div>
+                </div>
+                <h3 class="mt-4">Desired LLC Name</h3>
+                <div class="info-box">
+                    <i class="fas fa-gavel"></i>
+                    <strong>Naming Rules:</strong>
+                    <ul class="rule-list">
+                        <li><i class="fas fa-check"></i> Must end with "LLC" or "L.L.C."</li>
+                        <li><i class="fas fa-check"></i> Must be distinguishable from existing entities</li>
+                        <li><i class="fas fa-check"></i> Avoid restricted words (Bank, Insurance, etc.)</li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label>First Choice *</label>
+                    <input type="text" name="desiredLLCName" class="form-control" value="<%= sd.desiredLLCName || '' %>" placeholder="e.g., DeFi Ventures LLC" required>
+                </div>
+                <div class="form-group">
+                    <label>Second Choice (Alternative) *</label>
+                    <input type="text" name="alternativeLLCName1" class="form-control" value="<%= sd.alternativeLLCName1 || '' %>" required>
+                </div>
+                <div class="form-group">
+                    <label>Third Choice (Alternative) *</label>
+                    <input type="text" name="alternativeLLCName2" class="form-control" value="<%= sd.alternativeLLCName2 || '' %>" required>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary next-step">Continue to Address <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 3: BUSINESS ADDRESS ===== -->
+            <div class="form-card step-pane" data-step="3">
+                <h2><i class="fas fa-map-pin" style="color: var(--primary);"></i> Principal Business Address</h2>
+                <p>This is the official address for your LLC. It can be your home office or a virtual office.</p>
+                <div class="form-group">
+                    <label>Street Address *</label>
+                    <input type="text" name="street" class="form-control" value="<%= sd.street || '' %>" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>City *</label><input type="text" name="city" class="form-control" value="<%= sd.city || '' %>" required></div>
+                    <div class="form-group"><label>State *</label><input type="text" name="addressState" class="form-control" value="<%= sd.addressState || sd.state || '' %>" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>ZIP Code *</label><input type="text" name="zipCode" class="form-control" value="<%= sd.zipCode || '' %>" required></div>
+                    <div class="form-group"><label>County (Optional)</label><input type="text" name="county" class="form-control" value="<%= sd.county || '' %>"></div>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary next-step">Continue to Registered Agent <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 4: REGISTERED AGENT ===== -->
+            <div class="form-card step-pane" data-step="4">
+                <h2><i class="fas fa-user-tie" style="color: var(--primary);"></i> Appoint a Registered Agent</h2>
+                <p>A registered agent receives legal documents on behalf of your LLC.</p>
+                <div class="info-box">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Crypto Integration:</strong> Using a professional agent keeps your personal address private and ensures you never miss compliance notices.
+                </div>
+                <div class="form-group">
+                    <label>Select Agent *</label>
+                    <select name="registeredAgent" class="form-control" required>
+                        <option value="zen_business" <%= sd.registeredAgent == 'zen_business' ? 'selected' : '' %>>River Stone Wyoming Professional Service (Recommended)</option>
+                        <option value="self" <%= sd.registeredAgent == 'self' ? 'selected' : '' %>>I will serve as my own agent</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary next-step">Continue to Member Info <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 5: MEMBER / MANAGER INFORMATION ===== -->
+            <div class="form-card step-pane" data-step="5">
+                <h2><i class="fas fa-users" style="color: var(--primary);"></i> Member / Manager Details</h2>
+                <p>Tell us about the person(s) managing the LLC.</p>
+                <div class="form-group">
+                    <label>Full Legal Name *</label>
+                    <input type="text" name="memberName" class="form-control" value="<%= sd.memberName || user?.fullName || '' %>" required>
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="memberTitle" class="form-control" value="<%= sd.memberTitle || 'Managing Member' %>">
+                </div>
+                <div class="form-group">
+                    <label>Ownership Percentage (%) *</label>
+                    <input type="number" name="memberOwnership" class="form-control" value="<%= sd.memberOwnership || '100' %>" min="1" max="100" required>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary next-step">Continue to Purpose <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 6: BUSINESS PURPOSE ===== -->
+            <div class="form-card step-pane" data-step="6">
+                <h2><i class="fas fa-chart-line" style="color: var(--primary);"></i> Business Purpose (Crypto Focus)</h2>
+                <p>Select the primary activity of your LLC. This helps us tailor your operating agreement and compliance.</p>
+                <div class="form-group">
+                    <label>Primary Purpose *</label>
+                    <select name="businessPurpose" class="form-control" required>
+                        <option value="">-- Select --</option>
+                        <option value="crypto_trading" <%= sd.businessPurpose == 'crypto_trading' ? 'selected' : '' %>>Cryptocurrency Trading & Investment</option>
+                        <option value="defi" <%= sd.businessPurpose == 'defi' ? 'selected' : '' %>>DeFi Protocol / Yield Strategies</option>
+                        <option value="nft" <%= sd.businessPurpose == 'nft' ? 'selected' : '' %>>NFT Creation & Sales</option>
+                        <option value="mining" <%= sd.businessPurpose == 'mining' ? 'selected' : '' %>>Crypto Mining / Staking</option>
+                        <option value="consulting" <%= sd.businessPurpose == 'consulting' ? 'selected' : '' %>>Blockchain Consulting & Development</option>
+                        <option value="dao" <%= sd.businessPurpose == 'dao' ? 'selected' : '' %>>DAO / Web3 Governance</option>
+                        <option value="other" <%= sd.businessPurpose == 'other' ? 'selected' : '' %>>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>If other, please describe</label>
+                    <input type="text" name="businessPurposeOther" class="form-control" value="<%= sd.businessPurposeOther || '' %>">
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary next-step">Continue to EIN & Docs <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 7: EIN & OPERATING AGREEMENT ===== -->
+            <div class="form-card step-pane" data-step="7">
+                <h2><i class="fas fa-file-invoice" style="color: var(--primary);"></i> EIN & Operating Agreement</h2>
+                <div class="info-box">
+                    <i class="fas fa-id-card"></i>
+                    <strong>EIN (Employer Identification Number)</strong> – We will obtain your EIN from the IRS. It's required for banking, taxes, and opening a crypto treasury.
+                </div>
+                <div class="info-box">
+                    <i class="fas fa-file-signature"></i>
+                    <strong>Crypto-Ready Operating Agreement</strong> – Included with your plan. It covers digital asset management, cold storage rules, and profit distribution from crypto activities.
+                </div>
+                <input type="hidden" name="einRequested" value="true">
+                <input type="hidden" name="operatingAgreementAccepted" value="true">
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary next-step">Continue to Upload & Submit <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 8: DOCUMENTS & SUBMIT ===== -->
+            <div class="form-card step-pane" data-step="8">
+                <h2><i class="fas fa-cloud-upload-alt" style="color: var(--primary);"></i> Upload Documents & Submit</h2>
+                
+                <div class="summary-box">
+                    <h4>Application Summary</h4>
+                    <div class="summary-item"><span>Plan:</span> <span id="summaryPlan">-</span></div>
+                    <div class="summary-item"><span>LLC Name:</span> <span id="summaryName">-</span></div>
+                    <div class="summary-item"><span>State:</span> <span id="summaryState">-</span></div>
+                    <div class="summary-item"><span>Member:</span> <span id="summaryMember">-</span></div>
+                </div>
+
+                <h3>Required Documents</h3>
+                <div class="form-group">
+                    <label>Government-issued ID (Driver's License / Passport) *</label>
+                    <input type="file" name="idDocument" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                <div class="form-group">
+                    <label>Proof of Address (Utility Bill, Bank Statement) *</label>
+                    <input type="file" name="addressProof" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+
+                <% if (!locals.user) { %>
+                    <div class="signup-wall-premium">
+                        <i class="fas fa-lock" style="font-size: 3rem; color: var(--primary);"></i>
+                        <h3>Create Account to Complete Filing</h3>
+                        <p>Your progress is saved. Sign up or log in to submit your LLC application.</p>
+                        <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
+                            <a href="/auth/signup" class="btn btn-primary btn-lg">Sign Up</a>
+                            <a href="/auth/login" class="btn btn-outline btn-lg">Log In</a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-paper-plane"></i> Submit Application ($<span id="planPrice">0</span> + state fees)</button>
+                    </div>
+                <% } %>
+            </div>
+        </form>
+    </div>
+
+    <%- include('partials/footer') %>
+    <script src="/js/apply.js"></script>
+</body>
+</html>

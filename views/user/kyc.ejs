@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Identity Verification | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .kyc-container { max-width: 900px; margin: 40px auto; }
+        .kyc-wizard { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
+        .kyc-wizard::before { content: ''; position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: var(--glass-border); z-index: 0; }
+        .kyc-step { flex: 1; text-align: center; position: relative; z-index: 1; }
+        .kyc-step .step-icon { width: 40px; height: 40px; background: var(--step-pending); border: 2px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 600; color: white; }
+        .kyc-step.active .step-icon { background: var(--step-active); border-color: var(--step-active); box-shadow: 0 0 15px rgba(99,102,241,0.3); }
+        .kyc-step.completed .step-icon { background: var(--step-completed); border-color: var(--step-completed); }
+        .kyc-step .step-label { font-size: 0.8rem; color: var(--gray-light); }
+        .kyc-pane { display: none; }
+        .kyc-pane.active { display: block; }
+        .image-upload-area { border: 2px dashed var(--glass-border); border-radius: 16px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .image-upload-area:hover { border-color: var(--primary); background: rgba(99,102,241,0.05); }
+        .image-preview { max-width: 100%; max-height: 200px; margin-top: 15px; border-radius: 8px; }
+        .action-buttons { display: flex; gap: 15px; margin-top: 30px; }
+        .required-badge { color: var(--danger); margin-left: 4px; }
+        .ssn-hint { font-size: 0.8rem; color: var(--gray); margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <div class="user-profile">
+                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
+                        <h4><%= user.fullName %></h4>
+                        <p><%= user.email %></p>
+                    </div>
+                    <ul class="sidebar-nav">
+                        <li><a href="/user/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="/user/llcs"><i class="fas fa-building"></i> My LLCs</a></li>
+                        <li><a href="/user/wallet"><i class="fas fa-wallet"></i> Wallet</a></li>
+                        <li class="active"><a href="/user/kyc"><i class="fas fa-id-card"></i>KYC Verification</a></li>
+                        <li><a href="/user/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+
+                <!-- Main Content -->
+                <div class="content-area">
+                    <h1>Identity Verification (KYC)</h1>
+                    
+                    <% if (locals.success) { %><div class="alert alert-success"><i class="fas fa-check-circle"></i> <%= success %></div><% } %>
+                    <% if (locals.error) { %><div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div><% } %>
+
+                    <% const kyc = user.kycData || {}; %>
+                    <% if (user.kycStatus === 'approved') { %>
+                        <div class="alert alert-success"><i class="fas fa-check-circle"></i> Your identity has been verified. You have full access to all features.</div>
+                    <% } else if (user.kycStatus === 'pending') { %>
+                        <div class="info-box"><i class="fas fa-clock"></i> Your verification is under review. This usually takes 1–2 business days.</div>
+                    <% } else if (user.kycStatus === 'rejected') { %>
+                        <div class="info-box" style="border-left-color: var(--danger);">
+                            <i class="fas fa-times-circle" style="color:var(--danger);"></i>
+                            <strong>Verification Rejected</strong>
+                            <p><%= user.kycRejectionReason || 'No reason provided' %></p>
+                            <a href="/user/kyc?resubmit=1" class="btn btn-primary btn-sm">Resubmit Documents</a>
+                        </div>
+                    <% } %>
+
+                    <% if (['not_started', 'rejected'].includes(user.kycStatus) || resubmit) { %>
+                        <!-- Wizard Steps -->
+                        <div class="kyc-wizard">
+                            <div class="kyc-step active" data-step="1"><div class="step-icon">1</div><div class="step-label">Personal</div></div>
+                            <div class="kyc-step" data-step="2"><div class="step-icon">2</div><div class="step-label">ID</div></div>
+                            <div class="kyc-step" data-step="3"><div class="step-icon">3</div><div class="step-label">Address</div></div>
+                            <div class="kyc-step" data-step="4"><div class="step-icon">4</div><div class="step-label">Selfie</div></div>
+                            <div class="kyc-step" data-step="5"><div class="step-icon">5</div><div class="step-label">Submit</div></div>
+                        </div>
+
+                        <form id="kycForm" method="POST" action="/user/kyc/submit" enctype="multipart/form-data">
+                            <!-- Step 1: Personal Information -->
+                            <div class="kyc-pane active" data-step="1">
+                                <h3>Personal Information</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Full Legal Name <span class="required-badge">*</span></label>
+                                        <input type="text" name="fullName" class="form-control" value="<%= user.fullName %>" readonly disabled>
+                                        <small>As registered on your account</small>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Date of Birth <span class="required-badge">*</span></label>
+                                        <input type="date" name="dateOfBirth" class="form-control" value="<%= kyc.dateOfBirth ? kyc.dateOfBirth.toISOString().split('T')[0] : '' %>" required max="<%= new Date().toISOString().split('T')[0] %>">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Last 4 of SSN <span class="required-badge">*</span></label>
+                                        <input type="text" name="ssnLast4" class="form-control" placeholder="1234" maxlength="4" pattern="\d{4}" value="<%= kyc.ssnLast4 || '' %>" required>
+                                        <div class="ssn-hint">We only collect the last 4 digits for identity verification.</div>
+                                    </div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-primary next-step">Continue to ID Upload <i class="fas fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Government ID -->
+                            <div class="kyc-pane" data-step="2">
+                                <h3>Government‑Issued ID</h3>
+                                <div class="form-group">
+                                    <label>ID Type <span class="required-badge">*</span></label>
+                                    <select name="idType" class="form-control" required>
+                                        <option value="">-- Select --</option>
+                                        <option value="drivers_license" <%= kyc.idType == 'drivers_license' ? 'selected' : '' %>>Driver's License</option>
+                                        <option value="passport" <%= kyc.idType == 'passport' ? 'selected' : '' %>>Passport</option>
+                                        <option value="national_id" <%= kyc.idType == 'national_id' ? 'selected' : '' %>>National ID Card</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>ID Number <span class="required-badge">*</span></label>
+                                    <input type="text" name="idNumber" class="form-control" value="<%= kyc.idNumber || '' %>" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Front of ID <span class="required-badge">*</span></label>
+                                        <div class="image-upload-area upload-trigger" data-target="idFront">
+                                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                                            <p>Click to upload front side</p>
+                                            <input type="file" id="idFront" name="idFront" accept="image/*,.pdf" style="display:none;" required>
+                                        </div>
+                                        <img id="idFrontPreview" class="image-preview" style="display:none;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Back of ID <span class="required-badge">*</span></label>
+                                        <div class="image-upload-area upload-trigger" data-target="idBack">
+                                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                                            <p>Click to upload back side</p>
+                                            <input type="file" id="idBack" name="idBack" accept="image/*,.pdf" style="display:none;" required>
+                                        </div>
+                                        <img id="idBackPreview" class="image-preview" style="display:none;">
+                                    </div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                                    <button type="button" class="btn btn-primary next-step">Continue to Address <i class="fas fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Address Document -->
+                            <div class="kyc-pane" data-step="3">
+                                <h3>Proof of Address</h3>
+                                <div class="form-group">
+                                    <label>Upload Utility Bill or Bank Statement <span class="required-badge">*</span></label>
+                                    <div class="image-upload-area upload-trigger" data-target="addressDoc">
+                                        <img id="addressDocPreview" class="image-preview" style="display:none;">
+                                        <i class="fas fa-file-invoice fa-2x"></i>
+                                        <p>Click to upload (PDF, JPG, PNG)</p>
+                                        <input type="file" id="addressDoc" name="addressDoc" accept=".pdf,image/*" style="display:none;" required>
+                                    </div>
+                                    <small>Document must show your name and current address, dated within last 3 months.</small>
+                                </div>
+                               
+                            
+                                <div class="form-group">
+                                    <label>Street Address <span class="required-badge">*</span></label>
+                                    <input type="text" name="street" class="form-control" value="<%= kyc.addressDetails?.street || user.address?.street || '' %>" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>City <span class="required-badge">*</span></label><input type="text" name="city" class="form-control" value="<%= kyc.addressDetails?.city || user.address?.city || '' %>" required></div>
+                                    <div class="form-group"><label>State <span class="required-badge">*</span></label><input type="text" name="state" class="form-control" value="<%= kyc.addressDetails?.state || user.address?.state || '' %>" required></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>ZIP Code <span class="required-badge">*</span></label><input type="text" name="zipCode" class="form-control" value="<%= kyc.addressDetails?.zipCode || user.address?.zipCode || '' %>" required></div>
+                                    <div class="form-group"><label>Country</label><input type="text" class="form-control" value="USA" disabled></div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                                    <button type="button" class="btn btn-primary next-step">Continue to Selfie <i class="fas fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Selfie with ID -->
+                            <div class="kyc-pane" data-step="4">
+                                <h3>Selfie with ID</h3>
+                                <p>Take a photo of yourself holding your government ID next to your face. Ensure both your face and the ID are clearly visible.</p>
+                                <div class="form-group">
+                                    <label>Upload Selfie <span class="required-badge">*</span></label>
+                                    <div class="image-upload-area upload-trigger" data-target="selfie">
+                                        <i class="fas fa-camera fa-2x"></i>
+                                        <p>Click to upload selfie</p>
+                                        <input type="file" id="selfie" name="selfie" accept="image/*" style="display:none;" required>
+                                    </div>
+                                    <img id="selfiePreview" class="image-preview" style="display:none;">
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                                    <button type="button" class="btn btn-primary next-step">Review & Submit <i class="fas fa-arrow-right"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Review & Submit -->
+                            <div class="kyc-pane" data-step="5">
+                                <h3>Review Your Information</h3>
+                                <div class="summary-box">
+                                    <p><strong>Full Name:</strong> <%= user.fullName %></p>
+                                    <p><strong>Date of Birth:</strong> <span id="reviewDob"></span></p>
+                                    <p><strong>SSN (last 4):</strong> <span id="reviewSsn"></span></p>
+                                    <p><strong>ID Type:</strong> <span id="reviewIdType"></span></p>
+                                    <p><strong>ID Number:</strong> <span id="reviewIdNumber"></span></p>
+                                    <p><strong>Address:</strong> <span id="reviewAddress"></span></p>
+                                </div>
+                                <div class="checkbox-label">
+                                    <input type="checkbox" id="confirmKyc" required>
+                                    <label for="confirmKyc">I certify that all information provided is true and accurate.</label>
+                                </div>
+                                <div class="action-buttons">
+                                        <button type="button" class="btn btn-outline prev-step"><i class="fas fa-arrow-left"></i> Back</button>
+                                    <button type="submit" class="btn btn-success btn-lg" id="submitBtn" disabled>Submit Verification</button>
+                                </div>
+                            </div>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script src="/js/kyc.js"></script>
+</body>
+</html>

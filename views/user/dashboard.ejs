@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Dashboard | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base reset to prevent white background */
+        html, body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, var(--secondary) 100%);
+            background-attachment: fixed;
+        }
+
+        /* Dashboard layout */
+        .dashboard {
+            padding: 20px 0 60px;
+            background: transparent;
+            min-height: calc(100vh - 80px);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Sidebar - hidden on mobile by default */
+        .sidebar {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 100px;
+        }
+        .user-profile {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-avatar i {
+            font-size: 3rem;
+            color: white;
+        }
+        .user-profile h4 {
+            margin-bottom: 4px;
+        }
+        .user-profile p {
+            color: var(--gray-light);
+            font-size: 0.9rem;
+        }
+        .sidebar-nav {
+            list-style: none;
+        }
+        .sidebar-nav li {
+            margin-bottom: 8px;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--gray-light);
+            text-decoration: none;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        .sidebar-nav a:hover {
+            background: var(--glass-bg);
+            color: var(--light);
+        }
+        .sidebar-nav li.active a {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        .sidebar-nav i {
+            width: 20px;
+        }
+
+        /* Content area */
+        .content-area {
+            background: transparent;
+            padding: 0;
+        }
+        .dashboard-header {
+            margin-bottom: 30px;
+        }
+        .dashboard-header h1 {
+            margin-bottom: 8px;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+        }
+        .dashboard-header p {
+            color: var(--gray-light);
+        }
+
+        /* KYC Widget */
+        .kyc-widget {
+            background: linear-gradient(145deg, rgba(99,102,241,0.05), rgba(6,182,212,0.02));
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .kyc-widget-left { display: flex; align-items: center; gap: 20px; }
+        .kyc-icon { width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: white; flex-shrink: 0; }
+        .kyc-info h3 { margin-bottom: 4px; font-size: 1.2rem; }
+        .kyc-info p { color: var(--gray-light); margin: 0; }
+        .kyc-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 100px; font-weight: 600; font-size: 0.9rem; }
+        .kyc-status-badge.not-started { background: rgba(100,116,139,0.15); color: var(--gray-light); }
+        .kyc-status-badge.pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .kyc-status-badge.approved { background: rgba(16,185,129,0.15); color: var(--success); }
+        .kyc-status-badge.rejected { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+        /* Quick actions */
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 24px;
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .stat-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            color: var(--gray-light);
+        }
+
+        /* Recent section */
+        .recent-section {
+            margin-bottom: 30px;
+        }
+        .recent-section h3 {
+            margin: 0;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 16px;
+            background: var(--glass-bg);
+            color: var(--gray-light);
+            font-weight: 500;
+            border-bottom: 1px solid var(--glass-border);
+            white-space: nowrap;
+        }
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--light);
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Wallet snapshot */
+        .wallet-snapshot {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .wallet-address {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .wallet-address code {
+            background: var(--darker);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .balance-label { color: var(--gray-light); font-size: 0.9rem; }
+        .balance-value { font-size: 2rem; font-weight: 700; color: var(--success); }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px dashed var(--glass-border);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .badge-approved { background: rgba(16,185,129,0.2); color: var(--success); }
+        .badge-rejected { background: rgba(239,68,68,0.2); color: var(--danger); }
+
+        /* Mobile hamburger for sidebar */
+        .sidebar-toggle {
+            display: none;
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                z-index: 9999;
+                border-radius: 0;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 9998;
+            }
+            .sidebar-overlay.open {
+                display: block;
+            }
+            .content-area {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                padding: 10px 0 40px;
+            }
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+            .kyc-widget {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .kyc-widget-right {
+                width: 100%;
+            }
+            .kyc-widget-right .btn {
+                width: 100%;
+                justify-content: center;
+                margin-left: 0 !important;
+                margin-top: 10px;
+            }
+            .quick-actions {
+                flex-direction: column;
+            }
+            .quick-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 16px;
+            }
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            .wallet-snapshot {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .balance-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+    transition: left 0.3s ease;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        height: 100vh;
+        z-index: 9999;
+        border-radius: 0;
+        overflow-y: auto;
+    }
+    .sidebar.open {
+        left: 0;
+    }
+    .sidebar-toggle {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9998;
+    }
+    .sidebar-overlay.open {
+        display: block;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <div class="dashboard">
+        <div class="container">
+            <!-- Mobile sidebar toggle -->
+            <!-- <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i> Menu
+            </button> -->
+            <!-- Sidebar overlay for mobile -->
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+            <div class="dashboard-grid">
+                <!-- Sidebar -->
+                <div class="sidebar" id="sidebar">
+                    <div class="user-profile">
+                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
+                        <h4><%= user.fullName %></h4>
+                        <p><%= user.email %></p>
+                    </div>
+                    <ul class="sidebar-nav">
+                        <li class="active"><a href="/user/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li><a href="/user/kyc"><i class="fas fa-id-card"></i> Verification</a></li>
+                        <li><a href="/user/llcs"><i class="fas fa-building"></i> My LLCs</a></li>
+                        <li><a href="/user/wallet"><i class="fas fa-wallet"></i> Wallet</a></li>
+                        <li><a href="/user/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+
+                <!-- Main Content -->
+                <div class="content-area">
+                    <div class="dashboard-header">
+                        <h1>Welcome back, <%= user.fullName.split(' ')[0] %>!</h1>
+                        <h4 style="text-align: left; color: rgb(255, 13, 0);">TO ESTABLISH YOUR LLC, A MINIMUM INITIAL DEPOSIT OF $1,000 IS REQUIRED</h4>
+                        <p>Manage your LLCs and crypto wallet from this dashboard</p>
+                    </div>
+
+                    <!-- KYC Status Widget -->
+                    <div class="kyc-widget">
+                        <div class="kyc-widget-left">
+                            <div class="kyc-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div class="kyc-info">
+                                <h3>Identity Verification</h3>
+                                <% if (user.kycStatus === 'not_started') { %>
+                                    <p>Complete verification to unlock LLC filing and wallet creation.</p>
+                                <% } else if (user.kycStatus === 'pending') { %>
+                                    <p>Your documents are under review.</p>
+                                <% } else if (user.kycStatus === 'approved') { %>
+                                    <p>Your identity has been verified.</p>
+                                <% } else if (user.kycStatus === 'rejected') { %>
+                                    <p>Rejected: <%= user.kycRejectionReason || 'Please resubmit.' %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="kyc-widget-right">
+                            <% if (user.kycStatus === 'not_started') { %>
+                                <span class="kyc-status-badge not-started">Not Verified</span>
+                                <a href="/user/kyc" class="btn btn-primary" style="margin-left:15px;">Start Verification</a>
+                            <% } else if (user.kycStatus === 'pending') { %>
+                                <span class="kyc-status-badge pending">In Review</span>
+                            <% } else if (user.kycStatus === 'approved') { %>
+                                <span class="kyc-status-badge approved">Verified</span>
+                            <% } else if (user.kycStatus === 'rejected') { %>
+                                <span class="kyc-status-badge rejected">Rejected</span>
+                                <a href="/user/kyc?resubmit=1" class="btn btn-primary" style="margin-left:15px;">Resubmit</a>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <a href="/apply" class="btn btn-primary btn-lg"><i class="fas fa-plus-circle"></i> Apply for New LLC</a>
+                        <% if (locals.success) { %>
+                            <div class="alert alert-success"><%= success %></div>
+                        <% } %>
+                        <% if (locals.hasApprovedLLC) { %>
+                            <a href="/user/wallet/create" class="btn btn-success btn-lg"><i class="fas fa-wallet"></i> Create Wallet</a>
+                        <% } else { %>
+                            <button class="btn btn-outline btn-lg" disabled title="You need an approved LLC to create a wallet"><i class="fas fa-lock"></i> Create Wallet</button>
+                        <% } %>
+                        <div class="wallet-actions">
+                            <a href="/backup" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Backup Assets</a>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-value"><%= pendingLLCs %></div><div class="stat-label">Pending LLCs</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value" style="color:var(--success);"><%= approvedLLCs %></div><div class="stat-label">Approved LLCs</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-building"></i></div><div class="stat-value"><%= activeLLCs %></div><div class="stat-label">Active LLCs</div></div>
+                    </div>
+
+                    <!-- Recent LLCs -->
+                    <div class="recent-section">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                            <h3>Recent LLC Applications</h3>
+                            <a href="/user/llcs" class="btn btn-sm btn-outline">View All <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <% if (locals.recentLLCs && recentLLCs.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead><tr><th>LLC Name</th><th>Plan</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead>
+                                    <tbody>
+                                        <% recentLLCs.forEach(llc => { %>
+                                            <tr>
+                                                <td><strong><%= llc.desiredLLCName %></strong></td>
+                                                <td><%= llc.planId?.name || 'N/A' %></td>
+                                                <td><%= llc.submittedAt ? llc.submittedAt.toLocaleDateString() : 'Draft' %></td>
+                                                <td><span class="badge badge-<%= llc.status %>"><%= llc.status %></span></td>
+                                                <td><a href="/user/llcs/<%= llc._id %>" class="btn btn-sm btn-outline"><i class="fas fa-eye"></i> View</a></td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt" style="font-size:3rem; color:var(--gray); margin-bottom:16px;"></i>
+                                <h4>No LLC applications yet</h4>
+                                <p>Start your first crypto LLC today!</p>
+                                <a href="/apply" class="btn btn-primary">Apply for LLC</a>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Wallet Snapshot -->
+                    <% if (locals.wallet) { %>
+                        <div class="recent-section" style="margin-top:30px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                                <h3>Wallet Overview</h3>
+                                <a href="/user/wallet" class="btn btn-sm btn-outline">View Full Wallet <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                            <div class="wallet-snapshot">
+                                <div class="wallet-address">
+                                    <i class="fas fa-qrcode"></i>
+                                    <code><%= wallet.addresses.btc %></code>
+                                </div>
+                                <div class="wallet-balance">
+                                    <span class="balance-label">Total Balance</span>
+                                    <span class="balance-value">$<%= combinedBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) %></span>
+                                    <% if (wallet.manualBalance && wallet.manualBalance !== 0) { %>
+                                        <small style="color: var(--gray-light); display:block;">
+                                            (includes $<%= wallet.manualBalance.toLocaleString() %>  Profit made)
+                                        </small>
+                                    <% } %>
+                                </div>
+                                <div class="wallet-actions">
+                                    <a href="/backup" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Backup Assets</a>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script src="/js/main.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+        if (sidebarToggle && sidebar && sidebarOverlay) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('open');
+            });
+    
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+            });
+        }
+    
+        function backupAssets() {
+            alert('Asset backup feature – downloads portfolio data.');
+        }
+    </script>
+</body>
+</html>

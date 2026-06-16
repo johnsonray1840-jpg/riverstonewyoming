@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Create Wallet | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <div class="wallet-create-container">
+        <div class="wallet-create-card">
+            <% if (locals.error) { %>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error %>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="/user/dashboard" class="btn btn-primary">Return to Dashboard</a>
+                </div>
+            <% } else if (locals.phrase) { %>
+                <!-- Recovery Phrase Display (ONE TIME ONLY) -->
+                <div class="step-indicator">
+                    <span class="step active">1. Generate</span>
+                    <span class="step active">2. Secure Phrase</span>
+                    <span class="step">3. Confirm</span>
+                </div>
+
+                <div class="warning-banner">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>⚠️ CRITICAL: This is the ONLY time you will see this phrase.</strong>
+                        <p>We do not store your recovery phrase. If you lose it, you will permanently lose access to your wallet and all funds. No one can recover it for you.</p>
+                    </div>
+                </div>
+
+                <h2 style="margin: 30px 0 20px;">Your Recovery Phrase</h2>
+                
+                <div class="phrase-container">
+                    <% const words = phrase.split(' '); %>
+                    <div class="phrase-grid">
+                        <% words.forEach((word, index) => { %>
+                            <div class="phrase-word">
+                                <span class="word-index"><%= index + 1 %></span>
+                                <span class="word-value"><%= word %></span>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <div class="phrase-actions">
+                    <button id="copyPhraseBtn" class="btn btn-outline" 
+                    data-phrase="<%= phrase %>">
+                <i class="fas fa-copy"></i> Copy to Clipboard
+            </button>
+            <button id="downloadPhraseBtn" class="btn btn-outline"
+                    data-phrase="<%= phrase %>"
+                    data-addresses='<%- JSON.stringify(addresses) %>'>
+                <i class="fas fa-download"></i> Download as Text
+            </button>
+                </div>
+
+                <table class="detail-table">
+                    <tr>
+                        <th>BTC</th>
+                        <td>
+                            <code><%= addresses.btc %></code>
+                            <button class="btn-icon copy-address-btn" data-address="<%= addresses.btc %>" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>ETH</th>
+                        <td>
+                            <code><%= addresses.eth %></code>
+                            <button class="btn-icon copy-address-btn" data-address="<%= addresses.eth %>" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>USDT</th>
+                        <td>
+                            <code><%= addresses.usdt %></code>
+                            <button class="btn-icon copy-address-btn" data-address="<%= addresses.usdt %>" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>XRP</th>
+                        <td>
+                            <code><%= addresses.xrp %></code>
+                            <button class="btn-icon copy-address-btn" data-address="<%= addresses.xrp %>" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>BNB</th>
+                        <td>
+                            <code><%= addresses.bnb %></code>
+                            <button class="btn-icon copy-address-btn" data-address="<%= addresses.bnb %>" title="Copy">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Linked LLC</th>
+                        <td><%= llcName %></td>
+                    </tr>
+                </table>
+
+                <form action="/user/wallet/confirm" method="POST" onsubmit="return validateConfirmation()">
+                    <input type="hidden" name="walletId" value="<%= walletId %>">
+                    <input type="hidden" name="viewToken" value="<%= viewToken %>">
+                    
+                    <div class="confirmation-section">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="confirmSaved" required>
+                            <span>I have securely stored my recovery phrase in a safe place.</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="confirmUnderstand" required>
+                            <span>I understand that if I lose this phrase, I will lose access to my wallet forever.</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="confirmNoScreenshot" required>
+                            <span>I have not taken any screenshots or photos of this phrase.</span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success btn-lg" id="confirmBtn" disabled>
+                            <i class="fas fa-check-circle"></i> I Have Saved My Phrase – Continue to Wallet
+                        </button>
+                    </div>
+                </form>
+            <% } else { %>
+                <!-- Loading / No phrase state -->
+                <div style="text-align: center; padding: 40px;">
+                    <div class="loading-spinner"></div>
+                    <p>Generating your secure wallet...</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script>
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
+        }
+    </script>
+    <script src="/js/main.js"></script>
+    <script src="/js/wallet-create.js"></script>
+
+    <style>
+        .wallet-create-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        .wallet-create-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        .step {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        .step.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .warning-banner {
+            background: rgba(245,158,11,0.1);
+            border: 1px solid var(--warning);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        .warning-banner i {
+            font-size: 2rem;
+            color: var(--warning);
+        }
+        .phrase-container {
+            background: var(--darker);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        .phrase-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .phrase-word {
+            background: var(--secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 12px 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .word-index {
+            color: var(--gray);
+            font-size: 0.8rem;
+            min-width: 24px;
+        }
+        .word-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .phrase-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .wallet-details {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .confirmation-section {
+            margin: 30px 0;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .checkbox-label input {
+            margin-top: 3px;
+        }
+        .form-actions {
+            text-align: center;
+        }
+        #confirmBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--glass-border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @media (max-width: 768px) {
+            .phrase-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .wallet-create-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/meta') %>
+    <title>Manage Users | Admin | River Stone Wyoming</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <a href="/admin/dashboard" class="logo">
+                        <i class="fas fa-coins"></i>
+                        <span>RiverStoneWyoming<span class="premium">Business</span></span>
+                        <span class="admin-badge">Admin</span>
+                    </a>
+                </div>
+                <div class="nav-menu">
+                    <ul class="nav-links">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <i class="fas fa-user-shield"></i>
+                                <%= user.fullName %>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <div class="sidebar">
+                    <ul class="sidebar-nav">
+                        <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        <li>
+                            <a href="/admin/kyc"><i class="fas fa-id-card"></i> KYC Verification</a>   <!-- ADD THIS -->
+                        </li>
+                        <li><a href="/admin/plans"><i class="fas fa-box"></i> Plans Management</a></li>
+                        <li><a href="/admin/applications"><i class="fas fa-file-alt"></i> LLC Applications</a></li>
+                        <li>
+                            <a href="/admin/withdrawals">
+                                <i class="fas fa-money-bill-wave"></i> 
+                                Withdrawals
+                            </a>
+                        </li>
+                        <li><a href="/admin/wallet-pool"><i class="fas fa-wallet"></i> Wallet Pool</a></li>
+                        <li class="active"><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                    </ul>
+                </div>
+
+                <div class="content-area">
+                    <div class="dashboard-header">
+                        <h1>Users</h1>
+                        <p>View registered users</p>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Verified</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (users && users.length > 0) { %>
+                                    <% users.forEach(u => { %>
+                                        <tr>
+                                            <td><%= u.fullName %></td>
+                                            <td><%= u.email %></td>
+                                            <td><span class="badge"><%= u.role %></span></td>
+                                            <td><%= u.emailVerified ? 'Yes' : 'No' %></td>
+                                            <td><%= u.createdAt.toLocaleDateString() %></td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr><td colspan="5" style="text-align:center;padding:40px;">No users found.</td></tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html>
